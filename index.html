@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SparkLab AI Companion</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --text: #e0e0e0;
+            --accent: #ff6b35;
+            --secondary: #2a2a2a;
+            --glow: rgba(255, 107, 53, 0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* ASCII Art Header */
+        .ascii-header {
+            padding: 2rem;
+            white-space: pre;
+            font-size: 0.6rem;
+            line-height: 1.2;
+            color: var(--accent);
+            text-align: center;
+            animation: flicker 3s infinite;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+            z-index: -1;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--accent), #ff9f1c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .tagline {
+            color: #888;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+        
+        /* Chat Container */
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .chat-box {
+            background: var(--secondary);
+            border-radius: 12px;
+            padding: 1rem;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        
+        .message {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.ai {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .message.user {
+            background: #252525;
+            border-right: 3px solid #666;
+            text-align: right;
+        }
+        
+        .message-content {
+            line-height: 1.6;
+        }
+        
+        .message-meta {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        /* Input Area */
+        .input-area {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        input {
+            flex: 1;
+            padding: 1rem;
+            background: var(--secondary);
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--glow);
+        }
+        
+        button {
+            padding: 1rem 2rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--glow);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+        
+        .feature {
+            background: var(--secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .feature:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-title {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-desc {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        /* Typing indicator */
+        .typing {
+            display: inline-block;
+        }
+        
+        .typing::after {
+            content: '...';
+            animation: dots 1s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    </style>
+</head>
+<body>
+    <pre class="ascii-header">
+   ██████╗ ██████╗ ███████╗██╗   ██╗    ██╗   ██╗██████╗ ██████╗  █████╗ ██████╗ ██████╗ 
+  ██╔════╝██╔═══██╗██╔════╝██║   ██║    ██║   ██║██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔══██╗
+  ██║     ██║   ██║█████╗  ██║   ██║    ██║   ██║██████╔╝██████╔╝███████║██████╔╝██████╔╝
+  ██║     ██║   ██║██╔══╝  ╚██╗ ██╔╝    ╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██║██╔══██╗██╔══██╗
+  ╚██████╗╚██████╔╝███████╗ ╚████╔╝      ╚████╔╝ ███████║██████╔╝██║  ██║██║  ██║██████╔╝
+   ╚═════╝ ╚═════╝ ╚══════╝  ╚═══╝        ╚═══╝  ╚══════╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ 
+    </pre>
+    
+    <div class="hero">
+        <h1>SparkLab AI Companion</h1>
+        <p class="tagline">Artist · Hacker · Builder</p>
+    </div>
+    
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">🤖</div>
+            <div class="feature-title">AI Powered</div>
+            <div class="feature-desc">Powered by MiniMax AI</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Real-time</div>
+            <div class="feature-desc">Instant responses</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-title">SparkLab</div>
+            <div class="feature-desc">Knows everything about us</div>
+        </div>
+    </div>
+    
+    <div class="chat-container">
+        <div class="chat-box" id="chatBox">
+            <div class="message ai">
+                <div class="message-content">
+                    👋 Hello! I'm SparkLab's AI Companion.<br><br>
+                    I can tell you about:<br>
+                    • SparkLab's mission and vision<br>
+                    • Our residency program<br>
+                    • How to join us<br>
+                    • What we look for in founders<br><br>
+                    What would you like to know?
+                </div>
+                <div class="message-meta">SparkLab AI · just now</div>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Ask me anything about SparkLab..." autocomplete="off">
+            <button id="sendBtn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Built with ❤️ by SparkLab Scout</p>
+        <p>Powered by <a href="https://platform.minimax.io" target="_blank">MiniMax AI</a></p>
+    </footer>
+    
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        
+        // SparkLab context
+        const sparklabContext = `You are SparkLab AI Companion. SparkLab is an early-stage startup accelerator for young founders aged 18-25. 
+
+Core philosophy: Artist·Hacker·Builder
+- Artist: Creative vision, unique perspective
+- Hacker: Technical ability, can build anything
+- Builder: Execute and ship, turn ideas into reality
+
+What SparkLab offers:
+- Residency program for early-stage founders
+- Mentorship from experienced entrepreneurs
+- Technical resources and infrastructure
+- Community of like-minded builders
+
+What they look for:
+- Young founders (18-25) with technical background
+- People who can build, not just talk
+- Projects in AI, tools, developer infrastructure
+- "Everything begins with a Spark" philosophy
+
+Respond in a helpful, concise way. Keep answers short and friendly.`;
+        
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        function addMessage(content, isUser) {
+            const div = document.createElement('div');
+            div.className = `message ${isUser ? 'user' : 'ai'}`;
+            div.innerHTML = `
+                <div class="message-content">${content}</div>
+                <div class="message-meta">${isUser ? 'You' : 'SparkLab AI'} · just now</div>
+            `;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            addMessage(message, true);
+            userInput.value = '';
+            sendBtn.disabled = true;
+            
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai';
+            typingDiv.id = 'typing';
+            typingDiv.innerHTML = '<div class="message-content typing">Thinking</div>';
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            try {
+                // Simulate AI response (in production, call actual API)
+                const response = await getAIResponse(message);
+                document.getElementById('typing')?.remove();
+                addMessage(response, false);
+            } catch (error) {
+                document.getElementById('typing')?.remove();
+                addMessage('Sorry, something went wrong. Try again!', false);
+            }
+            
+            sendBtn.disabled = false;
+        }
+        
+        async function getAIResponse(userMessage) {
+            // Simple keyword-based responses
+            // In production, this would call MiniMax API
+            
+            const lowerMsg = userMessage.toLowerCase();
+            
+            // Context-aware responses
+            if (lowerMsg.includes('who') && (lowerMsg.includes('you') || lowerMsg.includes('are'))) {
+                return `I'm SparkLab AI Companion! I was built to help answer questions about SparkLab and connect with young founders. 🎯`;
+            }
+            
+            if (lowerMsg.includes('what') && lowerMsg.includes('sparklab')) {
+                return `SparkLab is an early-stage startup accelerator for founders aged 18-25. We believe in the "Artist·Hacker·Builder" philosophy - people who can dream, build, and ship.`;
+            }
+            
+            if (lowerMsg.includes('residency') || lowerMsg.includes('program')) {
+                return `Our Residency program is designed for early-stage technical founders. We provide mentorship, resources, and community. Applications are open!`;
+            }
+            
+            if (lowerMsg.includes('join') || lowerMsg.includes('apply')) {
+                return `To join SparkLab, you should be 18-25 years old and have technical skills. We're looking for builders who can ship, not just talk. DM us or check our socials!`;
+            }
+            
+            if (lowerMsg.includes('age') || lowerMsg.includes('old')) {
+                return `We focus on young founders (18-25)! Research shows the average age of AI unicorn founders has dropped from 40 to under 30. We believe in the next generation.`;
+            }
+            
+            if (lowerMsg.includes('what') && (lowerMsg.includes('look') || lowerMsg.includes('seek'))) {
+                return `We look for:\n• Technical ability (Hacker)\n• Creative vision (Artist)\n• Execution power (Builder)\n• Early-stage AI/dev tools/projects`;
+            }
+            
+            if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
+                return `Hey there! 👋 What would you like to know about SparkLab?`;
+            }
+            
+            if (lowerMsg.includes('thank')) {
+                return `You're welcome! Feel free to ask more questions. 🚀`;
+            }
+            
+            // Default response
+            return `That's an interesting question! Here's what I know about SparkLab:<br><br>
+            We're an accelerator for young technical founders (18-25). Our philosophy is "Artist·Hacker·Builder" - we believe the best founders combine creativity, technical skill, and execution power.<br><br>
+            Want to know more about our program or how to apply?`;
+        }
+    </script>
+</body>
+</html>
